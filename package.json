@@ -1,5 +1,5 @@
 {
-  "name": "@nuxtjs/xhr-cache",
+  "name": "@dewib/xhr-cache",
   "version": "1.0.0",
   "description": "Cache api resources and serve it as static resource",
   "main": "index.js",
