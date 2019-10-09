@@ -77,7 +77,7 @@ Here a configuration to cache specific categories from a specific store
         middleware: {
           path: 'categories',
           handler: async (req, res, { get, store }) => {
-            const match = req.url.match(/\/categories-(\d*|REF).json/)
+            const match = req.url.match(/\/categories-(\d*).json/)
 
             if (!match || match.length < 2) {
               res.statusCode = 404
@@ -86,7 +86,6 @@ Here a configuration to cache specific categories from a specific store
               const ctx = { storeId: match[1] }
               const path = `categories/categories-${ctx.storeId}.json`
 
-              // Check if file exist
               let content = get(path)
 
               if (!content) content = await store(path, ctx)
