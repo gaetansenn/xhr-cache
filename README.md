@@ -48,6 +48,19 @@ Then you can add all resources that you want to cache by adding it to your Nuxt 
 }
 ```
 
+## Refresh content manually
+
+XHR cache expose routes to refresh a resource manually.
+
+All routes are exposed during nuxtjs start with the specific path:
+
+```javascript
+path.join(
+  conf.rootUrl, // Route url from config
+  '/cache/refresh/',
+  id // Generated id of resource
+```
+
 ## Advanced usage
 
 With XHR cache you can customize the default middleware and the initial value.
@@ -55,7 +68,6 @@ Here a configuration to cache specific categories from a specific store
 
 ```javascript
 // nuxt.config.js
-
 {
   xhrCache: {
     resources: [
