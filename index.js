@@ -93,7 +93,7 @@ function generateId (name, identifier) {
   return `${name}-${identifier}`
 }
 
-module.exports = async function () {
+module.exports = async function xhrCache () {
   // Set default path into static directory
   defaultsConfig.path = path.join(this.nuxt.options.srcDir, this.nuxt.options.dir.static, defaultsConfig.rootFolder)
 
