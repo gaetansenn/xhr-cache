@@ -1,6 +1,7 @@
 {
   "name": "@dewib/xhr-cache",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "Cache api resources and serve it as static resource",
   "main": "index.js",
   "scripts": {
@@ -19,9 +20,11 @@
     "faster"
   ],
   "author": "Gaetan SENN (Dewib)",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/gaetansenn/xhr-cache/issues"
   },
-  "homepage": "https://github.com/gaetansenn/xhr-cache#readme"
+  "homepage": "https://github.com/gaetansenn/xhr-cache#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
