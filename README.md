@@ -60,7 +60,7 @@ The refresh route is generated like this:
 path.join(
   conf.rootUrl, // Route url from config
   '/cache/refresh/',
-  id // Generated id of resource
+  id) // Generated id of resource
 ```
 
 ## Advanced usage
