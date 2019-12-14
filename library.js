@@ -23,9 +23,7 @@ export async function store (name, path, request) {
 // Fetch data from url
 export function fetch (name, request) {
   // Inject response type if not present
-  const config = Object.assign({
-    responseType: 'text'
-  }, request)
+  const config = Object.assign({ responseType: 'text' }, request)
 
   let requestInfo = `${libPrefix} Fetch ${name} resource from ${request.url}`
 
@@ -34,7 +32,9 @@ export function fetch (name, request) {
   /* eslint-disable-next-line */
   console.info(requestInfo)
 
-  return axios(config)
+  return axios(config).catch((err) => {
+    return { data: request.catch } || Promise.reject(err)
+  })
 }
 
 // Read file from filesystem
