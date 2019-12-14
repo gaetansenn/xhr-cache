@@ -50,9 +50,11 @@ Then you can add all resources that you want to cache by adding it to your Nuxt 
 
 ## Refresh content manually
 
-XHR cache expose routes to refresh a resource manually.
+XHR cache expose routes to refresh a resource manually
 
-All routes are exposed during nuxtjs start with the specific path:
+All routes are exposed once the first called has been made to the resource or if the init resource option is set to true
+
+The refresh route is generated like this:
 
 ```javascript
 path.join(
