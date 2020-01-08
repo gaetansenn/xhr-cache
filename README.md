@@ -17,7 +17,7 @@ Firstly, you need to add `xhr-cache` to your Nuxt config.
 {
   modules: [
     [
-      'xhr-cache'
+      '@dewib/xhr-cache'
     ]
   ]
 }
