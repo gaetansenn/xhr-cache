@@ -32,8 +32,27 @@ export function fetch (name, request) {
   /* eslint-disable-next-line */
   console.info(requestInfo)
 
-  return axios(config).catch((err) => {
-    return { data: request.catch } || Promise.reject(err)
+  return axios(config).then((response) => {
+    /* eslint-disable-next-line */
+    if (!response) {
+      console.err(`${libPrefix} Response from ${request.url} is empty`)
+      
+      if (request.catch) return { data: request.catch }
+
+      // Returning default value to avoid null value 
+      return { data: {} }
+    }
+
+    return response
+  }).catch((err) => {
+    if (request.catch) {
+      /* eslint-disable-next-line */
+      console.err(`${libPrefix} Error on fetching resource ${request.url} returning catch value: ${err}`)
+
+      return { data: request.catch }
+    }
+
+    return Promise.reject(err)
   })
 }
 
@@ -41,7 +60,13 @@ export function fetch (name, request) {
 export function get (path) {
   if (!fs.existsSync(path)) return null
 
-  return JSON.parse(fs.readFileSync(path, 'UTF-8'))
+  try {
+    return JSON.parse(fs.readFileSync(path, 'UTF-8'))
+  } catch (err) {
+    console.err(`${libPrefix} Unable to parse JSON from ${path}`)
+
+    return {}
+  }
 }
 
 // Store data to filesystem
