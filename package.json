@@ -1,6 +1,6 @@
 {
   "name": "@dewib/xhr-cache",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "description": "Cache api resources and serve it as static resource",
   "main": "index.js",
