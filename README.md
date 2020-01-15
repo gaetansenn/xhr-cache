@@ -41,7 +41,8 @@ Then you can add all resources that you want to cache by adding it to your Nuxt 
         request: { // Axios request https://github.com/axios/axios#request-config
           method: 'get',
           url: 'http://www.mocky.io/v2/5d9e4c643200002a00329d0a'
-        } 
+        },
+        catch: [] // Value used if request failed or response is empty
       }
     ]
   }
