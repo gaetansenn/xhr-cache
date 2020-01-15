@@ -33,21 +33,29 @@ export function fetch (name, request) {
   console.info(requestInfo)
 
   return axios(config).then((response) => {
-    /* eslint-disable-next-line */
-    if (!response) {
-      console.err(`${libPrefix} Response from ${request.url} is empty`)
+    if (!response.data) {
+      const error = `${libPrefix} Response from ${request.url} is empty`
       
-      if (request.catch) return { data: request.catch }
+      if (typeof request.catch !== 'undefined') {
+        error += ` using provided default value ${request.catch}`
+        /* eslint-disable-next-line */
+        console.error(error)
 
-      // Returning default value to avoid null value 
+        return { data: request.catch }
+      }
+
+      // Returning default value to avoid null value
+      /* eslint-disable-next-line */
+      console.error(`${error} using default value {}`)
+
       return { data: {} }
     }
 
     return response
   }).catch((err) => {
-    if (request.catch) {
+    if (typeof request.catch !== 'undefined') {
       /* eslint-disable-next-line */
-      console.err(`${libPrefix} Error on fetching resource ${request.url} returning catch value: ${err}`)
+      console.error(`${libPrefix} Error on fetching resource ${request.url} returning catch value: ${err}`)
 
       return { data: request.catch }
     }
