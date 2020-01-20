@@ -20,12 +20,17 @@ function defaultMiddleware (conf, resource, { get, store }) {
   const middleware = {
     path: path.join(conf.rootUrl, resource.name),
     async handler (req, res) {
-      let content = get(file)
+      try {
+        let content = get(file)
 
-      if (!content) content = await store(file)
+        if (!content) content = await store(file)
 
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(content))
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(content))
+      } catch (err) {
+        res.writeHead(503)
+        res.end()
+      }
     }
   }
 
@@ -140,7 +145,12 @@ module.exports = async function xhrCache () {
             // Inject params to context
             if (matchResult.params) req.params = matchResult.params
 
-            resource.middleware.handler(req, res, context)
+            try {
+              resource.middleware.handler(req, res, context)
+            } catch (err) {
+              res.writeHead(503)
+              res.end()
+            }
           }
         }
 
