@@ -44,11 +44,7 @@ export function fetch (name, request) {
         return { data: request.catch }
       }
 
-      // Returning default value to avoid null value
-      /* eslint-disable-next-line */
-      console.error(`${error} using default value {}`)
-
-      return { data: {} }
+      return Promise.reject(`Response from ${request.url} is empty`)
     }
 
     return response
@@ -60,6 +56,8 @@ export function fetch (name, request) {
       return { data: request.catch }
     }
 
+    console.error(`${libPrefix} Error on fetching resource ${request.url}`)
+    
     return Promise.reject(err)
   })
 }
