@@ -56,7 +56,7 @@ export function fetch (name, request) {
       return { data: request.catch }
     }
 
-    console.error(`${libPrefix} Error on fetching resource ${request.url}`)
+    console.error(`${libPrefix} Error on fetching resource ${request.url}: ${err}`)
     
     return Promise.reject(err)
   })
