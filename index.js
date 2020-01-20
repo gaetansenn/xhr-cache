@@ -1,5 +1,6 @@
 import path from 'path'
 import rimraf from 'rimraf'
+import { match } from 'path-to-regexp'
 
 import { isFunction, get, store, libPrefix } from './library'
 
@@ -8,7 +9,7 @@ const resources = []
 
 const defaultsConfig = {
   rootFolder: 'cache',
-  rootUrl: 'static',
+  rootUrl: 'xhr-cache',
   maxAge: 3600 * 1000,
   clean: true
 }
@@ -17,25 +18,26 @@ function defaultMiddleware (conf, resource, { get, store }) {
   const file = `${resource.name}.json`
 
   const middleware = {
-    path: path.join(conf.rootUrl, file),
+    path: path.join(conf.rootUrl, resource.name),
     async handler (req, res) {
       let content = get(file)
 
       if (!content) content = await store(file)
 
+      res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify(content))
     }
   }
 
   /* eslint-disable-next-line */
-  console.info(`${libPrefix} Serve ${resource.name} resource to ${middleware.path}`)
+  console.info(`${libPrefix} Serve ${resource.name} resource to /${middleware.path}`)
 
   return middleware
 }
 
 function refreshMiddeware (conf) {
   return {
-    path: path.join(conf.rootUrl, '/cache/refresh'),
+    path: path.join(conf.rootUrl, 'refresh'),
     async handler (req, res) {
       const id = (req.url || '').replace('/', '')
       const resource = resources.find(resource => resource.id === id)
@@ -64,7 +66,7 @@ function handleRefresh (store, id, maxAge, resource, conf) {
   if (resources.find(resource => resource.id === id)) return false
 
   // eslint-disable-next-line
-  console.info(`${libPrefix} Refresh url for ${resource.name} with id ${id} is available at ${path.join(conf.rootUrl, '/cache/refresh/', id)}`)
+  console.info(`${libPrefix} Refresh url for ${resource.name} with id ${id} is available at /${path.join(conf.rootUrl, 'refresh', id)}`)
 
   resources.push({ id, store })
 
@@ -95,7 +97,7 @@ function generateId (name, identifier) {
 
 module.exports = async function xhrCache () {
   // Set default path into static directory
-  defaultsConfig.path = path.join(this.nuxt.options.srcDir, this.nuxt.options.dir.static, defaultsConfig.rootFolder)
+  defaultsConfig.path = path.join(this.nuxt.options.srcDir, defaultsConfig.rootFolder)
 
   const conf = Object.assign(defaultsConfig, this.options.xhrCache)
 
@@ -127,15 +129,23 @@ module.exports = async function xhrCache () {
       // Inject middleware
       if (!resource.middleware) this.addServerMiddleware(defaultMiddleware(conf, resource, context))
       else {
-        const middleware = {
-          path: path.join(conf.rootUrl, resource.middleware.path),
-          handler: (req, res) => {
+        const url = path.join(conf.rootUrl, resource.middleware.path)
+
+        const middleware = (req, res, next) => {
+          const matchResult = match(`/${url}`, { decode: decodeURIComponent })(req.url)
+
+          if (!matchResult) {
+            next()
+          } else {
+            // Inject params to context
+            if (matchResult.params) req.params = matchResult.params
+
             resource.middleware.handler(req, res, context)
           }
         }
 
       /* eslint-disable-next-line */
-      console.info(`${libPrefix} Serve ${resource.name} resource to ${middleware.path}`)
+      console.info(`${libPrefix} Serve custom ${resource.name} resource to /${url}`)
       this.addServerMiddleware(middleware)
       }
 
