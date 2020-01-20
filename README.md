@@ -1,4 +1,4 @@
-# XHR Cache Module v1.0.2
+# XHR Cache Module v1.0.3
 
 > Cache application/json api resources and serve it as static resource
 
@@ -42,7 +42,7 @@ Then you can add all resources that you want to cache by adding it to your Nuxt 
           method: 'get',
           url: 'http://www.mocky.io/v2/5d9e4c643200002a00329d0a'
         },
-        catch: [] // Value used if request failed or response is empty
+        catch: [] // (Optional) Value used if request error or no content
       }
     ]
   }
@@ -60,7 +60,7 @@ The refresh route is generated like this:
 ```javascript
 path.join(
   conf.rootUrl, // Route url from config
-  '/cache/refresh/',
+  'refresh',
   id) // Generated id of resource
 ```
 
@@ -84,29 +84,24 @@ Here a configuration to cache specific categories from a specific store
           }
         }),
         init: async ({ store }) => { 
-          const ctx = { storeId: '1234' }
+          const ctx = { storeId: 'REF' }
           const path = `categories/categories-${storeId}.json`
 
           await store(path, ctx)
         },
         middleware: {
-          path: 'categories',
+          // Handle regex path. 
+          // Usage: https://github.com/pillarjs/path-to-regexp#readme
+          path: 'categories/:storeId(\\d*|REF)',
           handler: async (req, res, { get, store }) => {
-            const match = req.url.match(/\/categories-(\d*).json/)
+            const ctx = { storeId: req.params.storeId }
+            const path = `categories/categories-${ctx.storeId}.json`
 
-            if (!match || match.length < 2) {
-              res.statusCode = 404
-              res.end()
-            } else {
-              const ctx = { storeId: match[1] }
-              const path = `categories/categories-${ctx.storeId}.json`
+            let content = get(path)
 
-              let content = get(path)
+            if (!content) content = await store(path, ctx)
 
-              if (!content) content = await store(path, ctx)
-
-              res.end(JSON.stringify(content))
-            }
+            res.end(JSON.stringify(content))
           }
         }
       }
