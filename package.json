@@ -1,6 +1,6 @@
 {
   "name": "@dewib/xhr-cache",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "MIT",
   "description": "Cache api resources and serve it as static resource",
   "main": "index.js",
@@ -26,5 +26,14 @@
   "homepage": "https://github.com/gaetansenn/xhr-cache#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "path": "^0.12.7",
+    "path-to-regexp": "^6.1.0",
+    "rimraf": "^3.0.0"
+  },
+  "peerDependencies": {
+    "axios": "^0.19.1"
   }
 }
