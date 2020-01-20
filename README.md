@@ -1,4 +1,4 @@
-# XHR Cache Module v1.0.4
+# XHR Cache Module v1.0.5
 
 > Cache application/json api resources and serve it as static resource
 
