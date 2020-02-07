@@ -1,6 +1,6 @@
 {
   "name": "@dewib/xhr-cache",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "license": "MIT",
   "description": "Cache api resources and serve it as static resource",
   "main": "index.js",
@@ -28,12 +28,11 @@
     "access": "public"
   },
   "dependencies": {
+    "axios": "^0.19.1",
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "path-to-regexp": "^6.1.0",
-    "rimraf": "^3.0.0"
-  },
-  "peerDependencies": {
-    "axios": "^0.19.1"
+    "rimraf": "^3.0.0",
+    "uuid-apikey": "^1.4.6"
   }
 }

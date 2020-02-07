@@ -1,4 +1,4 @@
-# XHR Cache Module v1.0.5
+# XHR Cache Module v2.0.0
 
 > Cache application/json api resources and serve it as static resource
 
@@ -23,16 +23,16 @@ Firstly, you need to add `xhr-cache` to your Nuxt config.
 }
 ```
 
-Then you can add all resources that you want to cache by adding it to your Nuxt config.
+Then you can add all resources that you want to cache by adding it to your `nuxt.config.js`.
 
 ```javascript
 // nuxt.config.js
-
 {
   xhrCache: {
+    apiKey: 'you-can-specify-your-own-key', // apiKey used to refresh resource https://github.com/chronosis/uuid-apikey#readme
     rootFolder: 'cache', // Root folder of cached resources (default value)
     rootUrl: 'static', // Root url of cached resources (default value)
-    maxAge: 3600 * 1000 // Age of cached files (default value)
+    maxAge: 3600 * 1000 // Age of cached files (default value) 1 hour
     clean: true // Clean all resources on nuxt start (default value)
     resources: [
       {
@@ -64,10 +64,12 @@ path.join(
   id) // Generated id of resource
 ```
 
+and need the apiKey as query params for security reasons
+
 ## Advanced usage
 
 With XHR cache you can customize the default middleware and the initial value.
-Here a configuration to cache specific categories from a specific store
+Here an example to cache specific categories from a specific store
 
 ```javascript
 // nuxt.config.js
@@ -83,25 +85,24 @@ Here a configuration to cache specific categories from a specific store
             storeId
           }
         }),
-        init: async ({ store }) => { 
+        init: ({ store }) => { 
           const ctx = { storeId: 'REF' }
-          const path = `categories/categories-${storeId}.json`
+          const path = `categories/categories-${ctx.storeId}.json`
 
-          await store(path, ctx)
+          return store({ path, ctx, identifier: ctx.storeId })
         },
         middleware: {
           // Handle regex path. 
           // Usage: https://github.com/pillarjs/path-to-regexp#readme
           path: 'categories/:storeId(\\d*|REF)',
-          handler: async (req, res, { get, store }) => {
-            const ctx = { storeId: req.params.storeId }
+          handler: async (params, { get, store }) => {
+            const ctx = { storeId: params.storeId }
             const path = `categories/categories-${ctx.storeId}.json`
 
-            let content = get(path)
+            // You can also throw Error inside the middleware
+            if (ctx.storeId === '123') throw Error(`Store with id ${ctx.storeId} doesn't not exist`)
 
-            if (!content) content = await store(path, ctx)
-
-            res.end(JSON.stringify(content))
+            return get(path) || store({ path, ctx, identifier: ctx.storeId })
           }
         }
       }
@@ -110,18 +111,32 @@ Here a configuration to cache specific categories from a specific store
 }
 ```
 
-## Methods 
+## Injected Methods
 
-Store and get methods are inject to middlware and initial config and allows you to interact with the file system.
+`store` and `get` methods are inject to custom `middleware` and `init` methods and allows you to interact with the stored files.
 
-### `store (path, context: optional)`
-Store requested content to file system
-- path: file system path
-- context: injected and used for axios request
+### `store ({ path: String, context: Object (optional), identifier: String (optional) }): Promise`
+Fetch and store requested content to file system
+- path: File system path
+- context: Injected and used for axios request
+- identifier: Used to generate uniq identifier
 
-### `get (path)`
+### `get (path): Resource`
 Get file from filesystem
 - path: file system path
+
+## NuxtJS Plugin
+
+XHR Request provide a nuxtJS plugin to get or refresh resource
+
+### `getResourceById (resourceId: String): Promise<Resource>`
+Get resource by id
+
+### `getResourceByUrl (resourceUrl: String): Promise<Resource>`
+Get resource by url
+
+### `refreshResourceById (resourceId: String, apiKey: String)`
+Refresh resource by id
 
 ## License
 

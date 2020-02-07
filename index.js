@@ -1,6 +1,7 @@
-import path from 'path'
+import { join, resolve } from 'path'
 import rimraf from 'rimraf'
 import { match } from 'path-to-regexp'
+import uuid from 'uuid-apikey'
 
 import { isFunction, get, store, libPrefix } from './library'
 
@@ -15,15 +16,17 @@ const defaultsConfig = {
 }
 
 function defaultMiddleware (conf, resource, { get, store }) {
-  const file = `${resource.name}.json`
+  const path = join(conf.rootUrl, resource.name)
 
-  const middleware = {
-    path: path.join(conf.rootUrl, resource.name),
+  console.info(`${libPrefix} Serve '${resource.name}' resource to ${join(conf.serverUrl, path)}`)
+
+  return {
+    path,
     async handler (req, res) {
       try {
-        let content = get(file)
+        let content = get()
 
-        if (!content) content = await store(file)
+        if (!content) content = await store()
 
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify(content))
@@ -33,47 +36,96 @@ function defaultMiddleware (conf, resource, { get, store }) {
       }
     }
   }
-
-  /* eslint-disable-next-line */
-  console.info(`${libPrefix} Serve ${resource.name} resource to /${middleware.path}`)
-
-  return middleware
 }
 
 function refreshMiddeware (conf) {
   return {
-    path: path.join(conf.rootUrl, 'refresh'),
+    path: join(conf.rootUrl, 'refresh'),
     async handler (req, res) {
-      const id = (req.url || '').replace('/', '')
-      const resource = resources.find(resource => resource.id === id)
+      const apiKey = (new URL(join(req.headers.host, req.originalUrl))).searchParams.get('apiKey')
 
-      if (!resource) res.end(`${libPrefix} Unable to find identifier ${id} for refresh`)
-      else if (resource.ongoing) {
-        res.statusCode = 400
-        res.end(`${libPrefix} Refresh for identifier ${id} already in progress...`)
+      if (!apiKey) {
+        res.writeHead(400, `${libPrefix} apiKey query not found`)
+        res.end()
+      } else if (apiKey && apiKey !== conf.apiKey) {
+        res.writeHead(400, `${libPrefix} wrong apiKey`)
+        res.end()
       } else {
-        const id = req.url.replace('/', '')
-        /* eslint-disable-next-line */
-        console.info(`${libPrefix} Force refresh for identifier ${id}`)
-        res.end(`${libPrefix} Force refresh for identifier ${id} executed`)
+        const id = (req.url || '').replace('/', '').replace(`?apiKey=${apiKey}`, '')
+        const resource = resources.find(resource => resource.id === id)
 
-        // Clean resource
-        resource.ongoing = true
-        await resource.store()
-        resource.ongoing = false
+        if (!resource) {
+          res.writeHead(404, `${libPrefix} Resource not found`)
+          res.end()
+        }
+        else if (resource.ongoing) {
+          res.writeHead(202)
+          res.end()
+        } else {
+          const id = req.url.replace('/', '')
+
+          console.info(`${libPrefix} Force refresh for identifier '${id}'`)
+
+          resource.ongoing = true
+          res.end()
+          await resource.store()
+          console.info(`${libPrefix} Refresh for identifier '${id}' done`)
+          resource.ongoing = false
+        }
       }
     }
   }
 }
 
-function handleRefresh (store, id, maxAge, resource, conf) {
+function resourcesList (conf) {
+  return {
+    path: join(conf.rootUrl, 'resources/list'),
+    handler (req, res) {
+      res.end(JSON.stringify(resources.filter((resource) => resource.id).map((resource) => {
+        const mapped = {
+          name: resource.name || resource.parent.name,
+          id: resource.id,
+          path: resource.middleware ? resource.middleware.path : resource.parent.middleware.path,
+          active: resource.active
+        }
+
+        if (resource.active) mapped.content = resource.get()
+
+        return mapped
+      })))
+    }
+  }
+}
+
+function getResource (conf) {
+  return {
+    path: join(conf.rootUrl, 'resource'),
+    async handler (req, res) {
+      const id = (req.url || '').replace('/', '')
+      const resource = resources.find(resource => resource.id === id)
+
+      if (!resource) {
+        res.writeHead(404, `${libPrefix} Unable to find resource with identifier '${id}'`)
+        res.end()
+      }
+      else {
+        const content = await resource.get()
+
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify(content))
+      }
+    }
+  }
+}
+
+function handleRefresh (store, id, maxAge, name, conf) {
+  const resource = resources.find(resource => resource.id === id)
+
   // Avoid subscribe to refresh if already active
-  if (resources.find(resource => resource.id === id)) return false
+  if (resource.active) return false
+  else resource.active = true
 
-  // eslint-disable-next-line
-  console.info(`${libPrefix} Refresh url for ${resource.name} with id ${id} is available at /${path.join(conf.rootUrl, 'refresh', id)}`)
-
-  resources.push({ id, store })
+  console.info(`${libPrefix} Refresh url for '${name}' with id '${id}' is available at ${join(conf.serverUrl, conf.rootUrl, 'refresh', id)}?apiKey=${conf.apiKey}`)
 
   if (maxAge) {
     const intervalId = setInterval(store, maxAge)
@@ -93,6 +145,23 @@ function handleRefresh (store, id, maxAge, resource, conf) {
   }
 }
 
+function registerResource ({ store, get, id, ctx, name }) {
+  const resource = resources.find((resource) => resource.id === id)
+
+  if (resource) return false
+
+  const parent = resources.find((resource) => resource.name === name)
+
+  resources.push({
+    id,
+    get,
+    store,
+    parent
+  })
+
+  console.info(`${libPrefix} Resource '${name}' with context ${JSON.stringify(ctx)} got '${id}' identifier`)
+}
+
 function generateId (name, identifier) {
   // Generate unique identifier
   if (!identifier) return name
@@ -102,68 +171,135 @@ function generateId (name, identifier) {
 
 module.exports = async function xhrCache () {
   // Set default path into static directory
-  defaultsConfig.path = path.join(this.nuxt.options.srcDir, defaultsConfig.rootFolder)
+  defaultsConfig.path = join(this.nuxt.options.srcDir, defaultsConfig.rootFolder)
 
   const conf = Object.assign(defaultsConfig, this.options.xhrCache)
+
+  conf.serverUrl = `http${this.options.server.https ? 's' : ''}://${this.options.server.host}:${this.options.server.port}`
+
+  if (!conf.apiKey) conf.apiKey = uuid.create().apiKey
+
+  console.info(`${libPrefix} Register apiKey ${conf.apiKey}`)
 
   // Clean directory cache
   if (conf.clean) rimraf.sync(conf.path)
 
   await Promise.all(conf.resources.map(async (resource) => {
-      const maxAge = (resource.maxAge === false) ? false : (resource.maxAge || conf.maxAge)
-      const storeFnc = async (_path, ctx, identifier) => {
-        let _request = resource.request
+    const maxAge = (resource.maxAge === false) ? false : (resource.maxAge || conf.maxAge)
+    // Bind get method with conf path
+    const getFnc = (path) => get(join(conf.path, path))
+    // Bind store method
+    // path: The final file name stored
+    // ctx: Injected to request if method
+    // identifier: Used for custom middleware for identification
+    const storeFnc = async ({ path, ctx, identifier }) => {
+      let request = resource.request
 
-        _path = path.join('/', conf.path, _path)
+      const getMethod = getFnc.bind(this, path)
 
-        if (isFunction(_request)) _request = _request(ctx)
+      path = join('/', conf.path, path)
 
-        const method = store.bind(this, resource.name, _path, _request)
-        const content = await method()
-        // Generate unique identifier used for refresh method
-        const id = generateId(resource.name, identifier)
+      if (isFunction(request)) request = request(ctx)
 
-        handleRefresh.call(this, method, id, maxAge, resource, conf)
+      const storeMethod = store.bind(this, resource.name, path, request)
+      
+      const content = await storeMethod()
 
-        return content
-      }
+      // Generate unique identifier used for refresh method
+      const id = generateId(resource.name, identifier)
 
-      const getFnc = (_path) => get(path.join(conf.path, _path))
-      const context = { get: getFnc, store: storeFnc }
+      if (resource.middleware) registerResource({ store: storeMethod, get: getMethod, id, ctx, name: resource.name })
+      
+      handleRefresh.call(this, storeMethod, id, maxAge, resource.name, conf)
 
-      // Inject middleware
-      if (!resource.middleware) this.addServerMiddleware(defaultMiddleware(conf, resource, context))
-      else {
-        const url = path.join(conf.rootUrl, resource.middleware.path)
+      return content
+    }
 
-        const middleware = (req, res, next) => {
-          const matchResult = match(`/${url}`, { decode: decodeURIComponent })(req.url)
+    const context = { get: getFnc, store: storeFnc }
 
-          if (!matchResult) {
-            next()
-          } else {
-            // Inject params to context
-            if (matchResult.params) req.params = matchResult.params
+    if (resource.middleware) {
+      const path = join(conf.rootUrl, resource.middleware.path)
 
-            try {
-              resource.middleware.handler(req, res, context)
-            } catch (err) {
-              res.writeHead(503)
-              res.end()
-            }
+      resources.push({
+        name: resource.name,
+        ...context,
+        middleware: Object.assign({}, resource.middleware, {
+          path
+        })
+      })
+
+      // Init custom resource if provided
+      if (isFunction(resource.init)) await resource.init(context)
+
+      const middleware = async (req, res, next) => {
+        const matchResult = match(`/${path}`, { decode: decodeURIComponent })(req.url)
+
+        if (!matchResult) next()
+        else {
+          try {
+            const response = await resource.middleware.handler(matchResult.params || {}, context)
+
+            res.end(JSON.stringify(response))
+          } catch (err) {
+            res.writeHead(503)
+            res.end()
           }
         }
-
-      /* eslint-disable-next-line */
-      console.info(`${libPrefix} Serve custom ${resource.name} resource to /${url}`)
-      this.addServerMiddleware(middleware)
       }
 
-      // Handle init fetch
-      if (isFunction(resource.init)) await resource.init(context)
-      else if (resource.init) await storeFnc(path.join(`${resource.name}.json`))
+      console.info(`${libPrefix} Serve custom '${resource.name}' resource to ${join(conf.serverUrl, path)}`)
+      this.addServerMiddleware(middleware)
+    } else {
+      // Bind default path to get and store method
+      context.store = context.store.bind(this, { path: join(`${resource.name}.json`) })
+      context.get = context.get.bind(this, join(`${resource.name}.json`))
+      const id = generateId(resource.name)
+
+      // Inject default middleware
+      this.addServerMiddleware(defaultMiddleware(conf, resource, context))
+
+      resources.push({
+        name: resource.name,
+        id,
+        ...context,
+        middleware: {
+          path: join(conf.rootUrl, resource.name)
+        }
+      })
+
+      console.info(`${libPrefix} Resource '${resource.name}' got '${id}' identifier`)
+
+      if (resource.init === true) await context.store()
+    }
   }))
 
+  // Inject resources list
+  this.addServerMiddleware(resourcesList(conf))
   // Inject refresh middleware
   this.addServerMiddleware(refreshMiddeware(conf))
+  // Inject resource route
+  this.addServerMiddleware(getResource(conf))
+
+  // Inject helper to requests
+  this.addServerMiddleware((req, res, next) => {
+    req.xhrCache = {
+      resources,
+      apiKey: conf.apiKey
+    }
+    
+    next()
+  })
+
+  // Inject plugin 
+  this.addPlugin({
+    src: resolve(__dirname, 'plugin.js'),
+    options: {
+      config: JSON.stringify({
+        rootUrl: conf.rootUrl,
+        rootFolder: conf.rootFolder,
+        serverUrl: conf.serverUrl
+      }),
+      resources: JSON.stringify(resources)
+    }
+  })
 }
