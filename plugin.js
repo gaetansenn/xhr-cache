@@ -31,14 +31,14 @@ export default (ctx, inject) => {
       resourceUrl = (resourceUrl[0] === '/') ? resourceUrl.substring(1) : resourceUrl
 
       if (process.server) {
-        const { match } = require('@dewib/xhr-cache/node_modules/path-to-regexp/dist/index.js')
-        const path = require('@dewib/xhr-cache/node_modules/path/path.js')
+        const { match } = require('path-to-regexp')
+        const { join } = require('path')
 
-        const resource = resources.find((resource) => resource.middleware && match(resource.middleware.path, { decode: decodeURIComponent })(path.join(config.rootUrl, resourceUrl)))
+        const resource = resources.find((resource) => resource.middleware && match(resource.middleware.path, { decode: decodeURIComponent })(join(config.rootUrl, resourceUrl)))
 
         if (!resource) throw Error(`${libPrefix} Resource url ${resourceUrl} not found`)
 
-        const matchResult = match(resource.middleware.path, { decode: decodeURIComponent })(path.join(config.rootUrl, resourceUrl))
+        const matchResult = match(resource.middleware.path, { decode: decodeURIComponent })(join(config.rootUrl, resourceUrl))
 
         if (resource) return resource.middleware.handler(matchResult.params, { get: resource.get, store: resource.store })
 
