@@ -29,7 +29,7 @@ function defaultMiddleware (conf, resource, { get, store }) {
         if (!content) content = await store()
 
         res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify(content))
+        res.end(JSON.stringify(content))  
       } catch (err) {
         res.writeHead(503)
         res.end()
@@ -42,7 +42,8 @@ function refreshMiddeware (conf) {
   return {
     path: join(conf.rootUrl, 'refresh'),
     async handler (req, res) {
-      const apiKey = (new URL(join(req.headers.host, req.originalUrl))).searchParams.get('apiKey')
+      /* Use fake hostname as URL method will throw an error */
+      const apiKey = (new URL(join('http://test.com', req.originalUrl))).searchParams.get('apiKey')
 
       if (!apiKey) {
         res.writeHead(400, `${libPrefix} apiKey query not found`)
