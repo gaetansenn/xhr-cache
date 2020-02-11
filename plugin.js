@@ -21,7 +21,7 @@ export default (ctx, inject) => {
         if (!resource) throw Error(`${libPrefix} Resource with id ${resourceId} not found`)
 
         // We get file from file system as we are on server side
-        return resource.init ? resource.get() : await resource.store()
+        return resource.active ? resource.get() : await resource.store()
       }
       
       return makeRequest(`/${config.rootUrl}/resource/${resourceId}`)
