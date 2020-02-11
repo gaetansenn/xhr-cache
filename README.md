@@ -1,4 +1,4 @@
-# XHR Cache Module v2.0.1
+# XHR Cache Module v2.0.3
 
 > Cache application/json api resources and serve it as static resource
 
@@ -31,7 +31,7 @@ Then you can add all resources that you want to cache by adding it to your `nuxt
   xhrCache: {
     apiKey: 'you-can-specify-your-own-key', // apiKey used to refresh resource https://github.com/chronosis/uuid-apikey#readme
     rootFolder: 'cache', // Root folder of cached resources (default value)
-    rootUrl: 'static', // Root url of cached resources (default value)
+    rootUrl: 'xhr-cache', // Root url of cached resources (default value)e
     maxAge: 3600 * 1000 // Age of cached files (default value) 1 hour
     clean: true // Clean all resources on nuxt start (default value)
     resources: [
@@ -85,12 +85,7 @@ Here an example to cache specific categories from a specific store
             storeId
           }
         }),
-        init: ({ store }) => { 
-          const ctx = { storeId: 'REF' }
-          const path = `categories/categories-${ctx.storeId}.json`
-
-          return store({ path, ctx, identifier: ctx.storeId })
-        },
+        }
         middleware: {
           // Handle regex path. 
           // Usage: https://github.com/pillarjs/path-to-regexp#readme
