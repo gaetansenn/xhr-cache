@@ -300,7 +300,9 @@ module.exports = async function xhrCache () {
         rootFolder: conf.rootFolder,
         serverUrl: conf.serverUrl
       }),
-      resources: JSON.stringify(resources)
+      resources: JSON.stringify(resources.map(resource => ({
+        id: resource.id
+      })))
     }
   })
 }
