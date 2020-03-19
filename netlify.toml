@@ -1,4 +1,0 @@
-[build]
-  base = "docs/"
-  publish = "docs/dist"
-  command = "yarn build"
