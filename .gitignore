@@ -1,2 +1,4 @@
 # Dependency directories
-node_modules/
+node_modules
+docs/.vuepress/dist
+docs/node_modules
