@@ -1,4 +1,4 @@
-# Auth Module
+# XHR Cache Module
 
 Cache `application/json` api resources and serve it as static resource with Nuxt.js
 
