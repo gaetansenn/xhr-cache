@@ -2,6 +2,9 @@
 
 > Cache application/json api resources and serve it as static resource
 
+## Links
+- [Documentation](https://xhr-cache.dewib.com)
+
 ## Setup
 ```sh
 yarn add @dewib/xhr-cache # yarn
