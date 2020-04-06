@@ -14,8 +14,7 @@ If it is first time using this module, reading resources below in order is recom
 
 ## More Resources
 
-* [Glossary](./glossary.md)
-* [GitHub](https://github.com/@dewib/xhr-cache)
-* [Releases](https://github.com/@dewib/xhr-cache/releases)
-* [Examples](https://github.com/@dewib/xhr-cache/tree/dev/examples)
+* [GitHub](https://github.com/gaetansenn/xhr-cache)
+* [Releases](https://github.com/gaetansenn/xhr-cache/releases)
+* [Examples](https://github.com/gaetansenn/xhr-cache/tree/dev/examples)
 * [Demo](https://zjwws.sse.codesandbox.io/)
