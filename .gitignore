@@ -1,4 +1,11 @@
-# Dependency directories
-node_modules
 docs/.vuepress/dist
 docs/node_modules
+dist
+coverage
+.DS_Store
+.vscode
+.nuxt
+node_modules
+*.iml
+.idea
+*.log*

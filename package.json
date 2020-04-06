@@ -3,14 +3,24 @@
   "version": "2.0.3",
   "license": "MIT",
   "description": "Cache api resources and serve it as static resource",
-  "main": "index.js",
+  "contributors": [
+    "Gaetan SENN <gaetan.senn@gmail.com>"
+  ],
+  "main": "lib/module.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nuxt test/fixture",
+    "lint": "eslint lib test",
+    "test": "yarn lint && yarn test:unit",
+    "test:unit": "jest test/unit.test",
+    "release": "yarn test && standard-version && git push --follow-tags && npm publish"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gaetansenn/xhr-cache.git"
   },
+  "files": [
+    "lib"
+  ],
   "keywords": [
     "nuxtjs",
     "cache",
@@ -23,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/gaetansenn/xhr-cache/issues"
   },
-  "homepage": "https://github.com/gaetansenn/xhr-cache#readme",
+  "homepage": "https://xhr-cache.dewib.com",
   "publishConfig": {
     "access": "public"
   },
@@ -34,5 +44,27 @@
     "path-to-regexp": "^6.1.0",
     "rimraf": "^3.0.0",
     "uuid-apikey": "^1.4.6"
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@commitlint/cli": "latest",
+    "@commitlint/config-conventional": "latest",
+    "@nuxtjs/eslint-config": "latest",
+    "babel-eslint": "latest",
+    "babel-jest": "latest",
+    "codecov": "latest",
+    "eslint": "latest",
+    "eslint-config-standard": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-jest": "latest",
+    "eslint-plugin-node": "latest",
+    "eslint-plugin-promise": "latest",
+    "eslint-plugin-standard": "latest",
+    "eslint-plugin-vue": "latest",
+    "husky": "latest",
+    "jest": "latest",
+    "nuxt-edge": "latest",
+    "standard-version": "latest"
   }
 }
