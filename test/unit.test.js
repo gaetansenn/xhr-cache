@@ -3,7 +3,7 @@ import { join } from 'path'
 import axios from 'axios'
 import library, { get, write, isFunction, fetch, store } from '../lib/library'
 
-export const libPrefix = '[xhr-cache]'
+const libPrefix = '[xhr-cache]'
 
 jest.mock('axios')
 
@@ -11,7 +11,6 @@ describe('library:get', () => {
   test('should return null if file doesn\'t exist', () => {
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
     expect(get(null)).toBe(null)
-    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} File null doesn't exist`)
     spy.mockRestore()
   })
 

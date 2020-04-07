@@ -9,9 +9,11 @@
   "main": "lib/module.js",
   "scripts": {
     "dev": "nuxt test/fixture",
+    "coverage": "codecov",
     "lint": "eslint lib test",
-    "test": "yarn lint && yarn test:unit",
+    "test": "yarn lint && yarn test:unit && yarn test:module",
     "test:unit": "jest test/unit.test",
+    "test:module": "jest test/module.test",
     "release": "yarn test && standard-version && git push --follow-tags && npm publish"
   },
   "repository": {
