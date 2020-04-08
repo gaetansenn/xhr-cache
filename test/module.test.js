@@ -1,24 +1,26 @@
 import axios from 'axios'
 
-import { setup, loadConfig, get } from '@nuxtjs/module-test-utils'
+import { setup, loadConfig, get, url } from '@nuxtjs/module-test-utils'
 
 const libPrefix = '[xhr-cache]'
 
 jest.mock('axios')
-axios.mockResolvedValue({ data: { toto: true } })
 
 const resource = {
-  name: 'test',
-  request: {
-    methods: 'get',
-    url: 'http://test'
-  }
+  config: {
+    name: 'test',
+    request: {
+      methods: 'get',
+      url: 'http://test'
+    }
+  },
+  content: { toto: true }
 }
 
 const config = {
   xhrCache: {
     apiKey: 'test',
-    resources: [resource]
+    resources: [resource.config]
   }
 }
 
@@ -50,8 +52,8 @@ describe('module.defaults', () => {
     expect(resources[0].id).toBe('test')
     /* eslint-disable */
     expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Register apiKey test`)
-    expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Serve 'test' resource to http:/localhost:3000/xhr-cache/test`)
-    expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Resource 'test' got 'test' identifier`)
+    expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Serve '${resource.config.name}' resource to ${url('/xhr-cache/test')}`)
+    expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Resource '${resource.config.name}' got '${resource.config.name}' identifier`)
     /* eslint-enable */
   })
 
@@ -69,27 +71,111 @@ describe('module.defaults', () => {
     })
   })
 
+  test('resource middleware with fetch error should throw 503', async () => {
+    axios.mockResolvedValue({ data: null })
+
+    try {
+      await get('/xhr-cache/test')
+    } catch (e) {
+      expect(e.statusCode).toBe(503)
+    }
+  })
+
   test('resource middleware should return resource', async () => {
+    axios.mockResolvedValue({ data: resource.content })
+    spy.mockClear()
     const test = await get('/xhr-cache/test', { json: true })
 
-    expect(test).toMatchObject({ toto: true })
+    expect(test).toMatchObject(resource.content)
+    /* eslint-disable */
+    expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Fetch ${resource.config.name} resource from ${resource.config.request.url}`)
+    expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Refresh url for '${resource.config.name}' with id '${resource.config.name}' is available at ${url(`/xhr-cache/refresh/${resource.config.name}?apiKey=test`)}`)
+    /* eslint-enable */
   })
 
   test('refresh resource should work', async () => {
     spy.mockClear()
-    axios.mockResolvedValue({ data: { toto: false } })
+    resource.content.toto = false
+    axios.mockResolvedValue({ data: resource.content })
     await get('/xhr-cache/refresh/test?apiKey=test')
 
     jest.setTimeout(1000)
     /* eslint-disable */
-    expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Force refresh for identifier '${resource.name}'`)
-    expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Fetch test resource from ${resource.request.url}`)
-    expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Refresh url for '${resource.name}' with id '${resource.name}' is available at http:/localhost:3000/xhr-cache/refresh/${resource.name}?apiKey=test`)
-    expect(console.info.mock.calls[3][0]).toBe(`${libPrefix} Refresh for identifier '${resource.name}' done`)
+    expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Force refresh for identifier '${resource.config.name}'`)
+    expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Fetch test resource from ${resource.config.request.url}`)
+    expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Refresh for identifier '${resource.config.name}' done`)
     /* eslint-enable */
 
     const response = await get('/xhr-cache/test', { json: true })
 
-    expect(response).toMatchObject({ toto: false })
+    expect(response).toMatchObject(resource.content)
+  })
+
+  test('refresh resource without apiKey should throw 400', async () => {
+    try {
+      await get('/xhr-cache/refresh/test')
+    } catch (e) {
+      expect(e.statusCode).toBe(400)
+    }
+  })
+
+  test('refresh resource with wrong apiKey should throw 400', async () => {
+    try {
+      await get('/xhr-cache/refresh/test?apiKey=wrong')
+    } catch (e) {
+      expect(e.statusCode).toBe(400)
+    }
+  })
+
+  test('refresh resource that doesn\'t exist should throw 404', async () => {
+    try {
+      await get('/xhr-cache/refresh/not-exist?apiKey=test')
+    } catch (e) {
+      expect(e.statusCode).toBe(404)
+    }
+  })
+
+  test('refresh already in progress should throw 409', async () => {
+    axios.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ data: resource.content }), 1000)))
+
+    await get('/xhr-cache/refresh/test?apiKey=test')
+
+    try {
+      await get('/xhr-cache/refresh/test?apiKey=test')
+    } catch (e) {
+      expect(e.statusCode).toBe(409)
+    }
+  })
+
+  test('list resources without apiKey should throw 400', async () => {
+    try {
+      await get('/xhr-cache/resources')
+    } catch (e) {
+      expect(e.statusCode).toBe(400)
+    }
+  })
+
+  test('list resources with wrong apiKey should throw 400', async () => {
+    try {
+      await get('/xhr-cache/resources?apiKey=wrong')
+    } catch (e) {
+      expect(e.statusCode).toBe(400)
+    }
+  })
+
+  test('list resources should return 200', async () => {
+    const response = await get('/xhr-cache/resources?apiKey=test', { json: true })
+
+    expect(response).toMatchObject([{
+      name: resource.config.name,
+      id: resource.config.name,
+      path: `xhr-cache/${resource.config.name}`,
+      active: true,
+      content: resource.content
+    }])
   })
 })
+
+// describe('module.custom', () => {
+
+// })
