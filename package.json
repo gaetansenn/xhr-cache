@@ -11,9 +11,7 @@
     "dev": "nuxt test/fixture",
     "coverage": "codecov",
     "lint": "eslint lib test",
-    "test": "yarn lint && yarn test:unit && yarn test:module",
-    "test:unit": "jest test/unit.test",
-    "test:module": "jest test/module.test",
+    "test": "yarn lint && jest",
     "release": "yarn test && standard-version && git push --follow-tags && npm publish"
   },
   "repository": {
@@ -53,6 +51,7 @@
     "@commitlint/cli": "latest",
     "@commitlint/config-conventional": "latest",
     "@nuxtjs/eslint-config": "latest",
+    "@nuxtjs/module-test-utils": "^1.6.1",
     "babel-eslint": "latest",
     "babel-jest": "latest",
     "codecov": "latest",
