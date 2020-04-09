@@ -27,7 +27,7 @@ npm i @dewib/xhr-cache # npm
 [npm-downloads-href]: https://npmjs.com/package/@dewib/xhr-cache
 [circle-ci-src]: https://flat.badgen.net/circleci/github/gaetansenn/xhr-cache
 [circle-ci-href]: https://circleci.com/gh/gaetansenn/xhr-cache
-[codecov-src]: https://flat.badgen.net/codecov/c/github/gaetansenn/xhr-cache
+[codecov-src]: https://codecov.io/gh/gaetansenn/xhr-cache/branch/master/graph/badge.svg
 [codecov-href]: https://codecov.io/gh/gaetansenn/xhr-cache
 [standard-js-src]: https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square
 [standard-js-href]: https://standardjs.com
