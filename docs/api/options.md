@@ -23,7 +23,7 @@ The prefix url used by exposed resources
 
 ## `maxAge`
 
-- type: `number`
+- type: `Number`
 - default: `3600 * 1000`
 
 Specifies the number (in milliseconds) until the resource is refreshed from his external resource
@@ -86,11 +86,24 @@ Full resource exemple:
   The name of the resource. Also used to generate the id of the resource
 
 #### maxAge
-  - type: `number | boolean`
+  - type: `Number | boolean | Function`
   - default: value from [parent](./options.md#maxage)
 
   Number (in milliseconds) until the resource is refreshed default (maxAge)[./options.md#maxage].
   The resource is not refreshed if the `false` value is provided.
+  `Function` method type is used to set/update maxAge value from response request.
+
+  ##### type: `Function`
+
+  - **Arguments**:
+    - [Axios](https://github.com/axios/axios#response-schema) response
+  - **Returns**: `Number`
+
+  ```js
+  function (response) {
+    return response.headers.maxage || 8000
+  }
+  ```
 
 #### request
   - type: `Object`
@@ -114,7 +127,7 @@ Full resource exemple:
   - type: `boolean | Function`
   - default: `false`
 
-  `Boolean` type is most of the time used for [default resource](../resources/default.md) and `Function` type is used for [custom resource](../resources/custom.md) when [middleware](./options.md#middleware) is provided
+  `boolean` type is most of the time used for [default resource](../resources/default.md) and `Function` type is used for [custom resource](../resources/custom.md) when [middleware](./options.md#middleware) is provided
 
   ##### type: `Function`
   

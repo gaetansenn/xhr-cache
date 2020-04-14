@@ -199,14 +199,17 @@ describe('library:store', () => {
       response: {
         data: {
           toto: true
+        },
+        headers: {
+          maxAge: 1200
         }
       },
       path: join(__dirname, './test.json')
     }
 
-    const spy = jest.spyOn(library, 'fetch').mockImplementation(() => ({ data: context.response.data }))
+    const spy = jest.spyOn(library, 'fetch').mockImplementation(() => context.response)
 
-    await expect(store(context.name, context.path, context.request)).resolves.toEqual(context.response.data)
+    await expect(store(context.name, context.path, context.request)).resolves.toEqual(context.response)
     expect(spy.mock.calls.length).toBe(1)
   })
 })
