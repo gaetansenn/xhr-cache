@@ -9,3 +9,4 @@ node_modules
 *.iml
 .idea
 *.log*
+test/fixture/basic/cache
