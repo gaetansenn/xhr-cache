@@ -2,7 +2,7 @@ module.exports = {
   title: 'XHR Cache Module',
   description: 'Cache application/json api resources and serve it as static resource with NuxtJS',
   themeConfig: {
-    repo: '@dewib/xhr-cache',
+    repo: 'gaetansenn/xhr-cache',
     docsDir: 'docs',
     editLinks: true,
     editLinkText: 'Edit this page on GitHub',
