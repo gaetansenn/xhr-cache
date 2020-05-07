@@ -35,6 +35,13 @@ Specifies the number (in milliseconds) until the resource is refreshed from his 
 
 Clean all resources located in [rootFolder](./options.md#rootfolder)  `rootFolder` on nuxt start
 
+## `skipWarmupOnBuild`
+
+- type: `boolean`
+- default: `false`
+
+If `true`, the resources will not be cached when running `nuxt build`, but only on `nuxt start`.
+
 ## `resources`
 
 - type: `Array<Resource>`
