@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/gaetansenn/xhr-cache/compare/v2.1.0...v3.0.0) (2020-05-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* **module:** no cache during build process
+
+### Bug Fixes
+
+* **module:** skip module init during build process ([baa54dc](https://github.com/gaetansenn/xhr-cache/commit/baa54dc046123136e16c57ca4984747158fd244e))
+
 ## [2.1.0](https://github.com/gaetansenn/xhr-cache/compare/v2.0.3...v2.1.0) (2020-04-14)
 
 
