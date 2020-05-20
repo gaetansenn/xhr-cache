@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/gaetansenn/xhr-cache/compare/v3.0.1...v3.1.0) (2020-05-20)
+
+
+### Features
+
+* **extend:** add the ability to extend the module ([#7](https://github.com/gaetansenn/xhr-cache/issues/7)) ([72dfef7](https://github.com/gaetansenn/xhr-cache/commit/72dfef7fca6a7634b576e8c8bbeef59f659ef2b3))
+
 ### [3.0.1](https://github.com/gaetansenn/xhr-cache/compare/v3.0.0...v3.0.1) (2020-05-20)
 
 
