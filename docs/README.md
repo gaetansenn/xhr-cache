@@ -11,6 +11,7 @@ If it is first time using this module, reading resources below in order is recom
 4. [Add custom resource](./resources/custom.md)
 4. [Customize options](./api/options.md)
 5. [Use `$xhrCache` plugin](./api/plugin.md)
+5. [Extend the `$xhrCache` plugin](./recipes/extend.md)
 
 ## More Resources
 

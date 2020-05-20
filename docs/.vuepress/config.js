@@ -30,6 +30,13 @@ module.exports = {
             '/resources/default',
             '/resources/custom'
           ]
+        },
+        {
+          title: 'Recipes',
+          collapsable: false,
+          children: [
+            '/recipes/extend'
+          ]
         }
       ],
     },
