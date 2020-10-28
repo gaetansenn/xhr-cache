@@ -56,7 +56,7 @@
     "babel-jest": "^25.4.0",
     "codecov": "latest",
     "eslint": "latest",
-    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard": "^15.0.1",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jest": "latest",
     "eslint-plugin-node": "^11.1.0",
