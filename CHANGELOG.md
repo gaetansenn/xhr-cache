@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.2](https://github.com/gaetansenn/xhr-cache/compare/v3.1.1...v3.1.2) (2021-03-11)
+
+
+### Bug Fixes
+
+* fix windows device path match ([17fd17b](https://github.com/gaetansenn/xhr-cache/commit/17fd17beb46d3b3a58df7296271f9015e4498792))
+
 ### [3.1.1](https://github.com/gaetansenn/xhr-cache/compare/v3.1.0...v3.1.1) (2021-03-09)
 
 
