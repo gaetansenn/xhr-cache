@@ -1,4 +1,4 @@
-# XHR Cache Module v3.2.2
+# XHR Cache Module v3.2.3
 
 [![npm version][npm-version-src]][npm-version-href]
 [![npm downloads][npm-downloads-src]][npm-downloads-href]
