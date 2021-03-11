@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/gaetansenn/xhr-cache/compare/v3.1.2...v3.2.0) (2021-03-11)
+
+
+### Features
+
+* add specific plugin name for managing order with nuxt ([e340ab0](https://github.com/gaetansenn/xhr-cache/commit/e340ab0d555e9acd014af1f9107a7e0050771ce6))
+
 ### [3.1.2](https://github.com/gaetansenn/xhr-cache/compare/v3.1.1...v3.1.2) (2021-03-11)
 
 
