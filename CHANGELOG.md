@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.2.2](https://github.com/gaetansenn/xhr-cache/compare/v3.2.1...v3.2.2) (2021-03-11)
+
+
+### Bug Fixes
+
+* fix resources injection to plugin and fix tests ([f6dfde6](https://github.com/gaetansenn/xhr-cache/commit/f6dfde61bd082ca50ccf93bb47c74e3a56fc505a))
+
 ### [3.2.1](https://github.com/gaetansenn/xhr-cache/compare/v3.2.0...v3.2.1) (2021-03-11)
 
 
