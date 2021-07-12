@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.2.4](https://github.com/gaetansenn/xhr-cache/compare/v3.2.3...v3.2.4) (2021-07-12)
+
+
+### Bug Fixes
+
+* fix regex path middleware ([16eb1c0](https://github.com/gaetansenn/xhr-cache/commit/16eb1c0550242194a44efec93f16970d7283812a))
+
 ### [3.2.3](https://github.com/gaetansenn/xhr-cache/compare/v3.2.2...v3.2.3) (2021-05-06)
 
 
