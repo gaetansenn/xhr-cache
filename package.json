@@ -67,5 +67,8 @@
     "jest": "^25.4.0",
     "nuxt-edge": "^2.13.0-26465775.85383688",
     "standard-version": "latest"
+  },
+  "engines": {
+    "node": "^14.16.0"
   }
 }

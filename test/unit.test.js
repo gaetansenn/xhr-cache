@@ -1,7 +1,7 @@
 import fs from 'fs'
 import { join } from 'path'
 import axios from 'axios'
-import library, { get, write, isFunction, fetch, store } from '../lib/library'
+import library, { get, write, isFunction, fetch, store, getLog } from '../lib/library'
 
 const libPrefix = '[xhr-cache]'
 
@@ -76,7 +76,7 @@ describe('library:fetch', () => {
     const spy = jest.spyOn(console, 'info').mockImplementation(() => {})
     const response = await fetch(context.name, context.request)
 
-    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Fetch ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)}`)
+    expect(spy.mock.calls[0][0]).toContain(getLog(context.name, context.request, 'Fetch'))
     expect(axios.mock.calls[0][0]).toMatchObject({ responseType: 'text' })
     expect(axios.mock.calls.length).toBe(1)
     expect(response).toBe(response)
@@ -103,7 +103,7 @@ describe('library:fetch', () => {
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     await expect(fetch(context.name, context.request)).rejects.toThrow(`Response from ${context.request.url} is empty`)
-    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Response from ${context.request.url} is empty`)
+    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Response ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)} is empty.`)
     spy.mockClear()
   })
 
@@ -127,7 +127,7 @@ describe('library:fetch', () => {
     const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     await expect(fetch(context.name, context.request)).rejects.toThrow(context.error)
-    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Error on fetching resource ${context.request.url}: ${new Error(context.error)}`)
+    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Error on fetching ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)} error: ${context.error}`)
     spy.mockClear()
   })
 
@@ -153,11 +153,11 @@ describe('library:fetch', () => {
     spy.mockClear()
 
     await expect(fetch(context.name, context.request)).resolves.toEqual({ data: context.request.catch })
-    expect(spy.mock.calls[1][0]).toContain(`${libPrefix} Response from ${context.request.url} is empty using provided default value ${context.request.catch}`)
+    expect(spy.mock.calls[1][0]).toContain(`${libPrefix} Response ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)} is empty. Using provided default value ${context.request.catch}`)
     spy.mockClear()
   })
 
-  test('should return request.catch value if request.catch is not empty and if XHR request is empty', async () => {
+  test('should return request.catch value if request.catch is not empty and if XHR request throw an error', async () => {
     const context = {
       name: 'test',
       request: {
@@ -176,13 +176,40 @@ describe('library:fetch', () => {
 
     axios.mockResolvedValue(Promise.reject(new Error(context.error)))
 
-    const spy = jest.spyOn(console, 'info').mockImplementation(() => {})
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
     spy.mockClear()
 
     await expect(fetch(context.name, context.request)).resolves.toEqual({ data: context.request.catch })
-    expect(spy.mock.calls[1][0]).toContain(`${libPrefix} Error on fetching resource ${context.request.url} returning catch value: ${new Error(context.error)}`)
+    expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Error on fetching ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)} returning catch value: ${context.request.catch}, error: ${context.error}`)
     spy.mockClear()
   })
+})
+
+test('should handle good catch of XHR request error', async () => {
+  const context = {
+    name: 'test',
+    request: {
+      method: 'get',
+      url: '/test',
+      params: {
+        storeId: 'test'
+      },
+      catch: 'test'
+    },
+    response: {
+      data: null
+    },
+    error: 'error'
+  }
+
+  axios.mockResolvedValue(Promise.reject(new Error(context.error)))
+
+  const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  spy.mockClear()
+
+  await expect(fetch(context.name, context.request)).resolves.toEqual({ data: context.request.catch })
+  expect(spy.mock.calls[0][0]).toContain(`${libPrefix} Error on fetching ${context.name} resource from ${context.request.url}, params: ${JSON.stringify(context.request.params)} returning catch value: ${context.request.catch}, error: ${context.error}`)
+  spy.mockClear()
 })
 
 describe('library:store', () => {

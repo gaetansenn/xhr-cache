@@ -80,7 +80,7 @@ describe('module.default', () => {
     } catch (e) {
       expect(e.statusCode).toBe(503)
       /* eslint-disable-next-line */
-      expect(console.error.mock.calls[0][0]).toBe(`${libPrefix} Response from ${defaultResource.request.url} is empty`)
+      expect(console.error.mock.calls[0][0]).toBe(`${libPrefix} Response ${defaultResource.name} resource from ${defaultResource.request.url} is empty.`)
     }
   })
 
