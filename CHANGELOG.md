@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/gaetansenn/xhr-cache/compare/v3.2.6...v3.3.0) (2022-09-21)
+
+
+### Features
+
+* improve xhr logs ([2e5523b](https://github.com/gaetansenn/xhr-cache/commit/2e5523b2f9b3b9e4e830751469d4c0636769cf79))
+
 ### [3.2.6](https://github.com/gaetansenn/xhr-cache/compare/v3.2.4...v3.2.6) (2021-07-12)
 
 ### [3.2.4](https://github.com/gaetansenn/xhr-cache/compare/v3.2.3...v3.2.4) (2021-07-12)
