@@ -53,7 +53,7 @@
     "@nuxtjs/eslint-config": "latest",
     "@nuxtjs/module-test-utils": "^1.6.1",
     "babel-eslint": "latest",
-    "babel-jest": "^25.4.0",
+    "babel-jest": "^29.6.4",
     "codecov": "latest",
     "eslint": "latest",
     "eslint-config-standard": "^14.1.1",
