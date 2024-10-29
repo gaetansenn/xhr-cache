@@ -51,23 +51,23 @@ describe('module.default', () => {
     expect(config.rootUrl).toBe('xhr-cache')
     expect(config.rootFolder).toBe('cache')
     expect(resources[0].id).toBe(defaultResource.name)
-    /* eslint-disable */
+     
     expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Register apiKey ${defaultConfig.xhrCache.apiKey}`)
     expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Serve '${defaultResource.name}' resource to ${url(`/xhr-cache/${defaultResource.name}`)}`)
     expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Resource '${defaultResource.name}' got '${defaultResource.name}' identifier`)
-    /* eslint-enable */
+     
   })
 
   test('should inject serverMiddlewares', () => {
     const middlewares = nuxt.moduleContainer.options.serverMiddleware
 
-    expect(middlewares.findIndex(middleware => middleware.route === `/xhr-cache/${defaultResource.name}`)).not.toBe(-1)
-    expect(middlewares.findIndex(middleware => middleware.route === '/xhr-cache/refresh')).not.toBe(-1)
+    expect(middlewares.findIndex(middleware => middleware.path === `xhr-cache/${defaultResource.name}`)).not.toBe(-1)
+    expect(middlewares.findIndex(middleware => middleware.path === 'xhr-cache/refresh')).not.toBe(-1)
 
     const req = {}
 
     middlewares[4](req, false, () => {
-      expect(req.xhrCache.resources.length).toBe(1)
+      expect(req.xhrCache.resources).toHaveLength(1)
       expect(req.xhrCache.apiKey).toBe(defaultConfig.xhrCache.apiKey)
     })
   })
@@ -79,36 +79,36 @@ describe('module.default', () => {
       await get(`/xhr-cache/${defaultResource.name}`)
     } catch (e) {
       expect(e.statusCode).toBe(503)
-      /* eslint-disable-next-line */
+       
       expect(console.error.mock.calls[0][0]).toBe(`${libPrefix} Response ${defaultResource.name} resource from ${defaultResource.request.url} is empty.`)
     }
   })
 
   test('resource middleware should return resource', async () => {
     axios.mockResolvedValue({ data: defaultResource.content })
-    /* eslint-disable-next-line */
+     
     console.info.mockClear()
     const test = await get(`/xhr-cache/${defaultResource.name}`, { json: true })
 
     expect(test).toMatchObject(defaultResource.content)
-    /* eslint-disable */
+     
     expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Fetch ${defaultResource.name} resource from ${defaultResource.request.url}`)
     expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Refresh url for '${defaultResource.name}' with id '${defaultResource.name}' is available at ${url(`/xhr-cache/refresh/${defaultResource.name}?apiKey=${defaultConfig.xhrCache.apiKey}`)}`)
-    /* eslint-enable */
+     
   })
 
   test('refresh resource should work', async () => {
-    /* eslint-disable-next-line */
+     
     console.info.mockClear()
     defaultResource.content.default = false
     axios.mockResolvedValue({ data: defaultResource.content })
     await get(`/xhr-cache/refresh/${defaultResource.name}?apiKey=${defaultConfig.xhrCache.apiKey}`)
 
-    /* eslint-disable */
+     
     expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Force refresh for identifier '${defaultResource.name}'`)
     expect(console.info.mock.calls[1][0]).toBe(`${libPrefix} Fetch ${defaultResource.name} resource from ${defaultResource.request.url}`)
     expect(console.info.mock.calls[2][0]).toBe(`${libPrefix} Refresh for identifier '${defaultResource.name}' done`)
-    /* eslint-enable */
+     
 
     const response = await get(`/xhr-cache/${defaultResource.name}`, { json: true })
 
@@ -191,14 +191,11 @@ describe('module.default', () => {
     }
   })
 
-  test('nuxt close hook should stop auto refresh of resource', async (done) => {
-    /* eslint-disable-next-line */
+  test('nuxt close hook should stop auto refresh of resource', async () => {
     console.info.mockClear()
 
     nuxt.hook('close', () => {
-      /* eslint-disable-next-line */
       expect(console.info.mock.calls[0][0]).toBe(`${libPrefix} Stop auto refresh for '${defaultResource.name} with id '${defaultResource.name}'`)
-      done()
     })
 
     await nuxt.callHook('close')
@@ -221,7 +218,7 @@ const customResources = [{
     return store({ path, ctx, identifier: ctx.id })
   },
   middleware: {
-    /* eslint-disable-next-line */
+     
     path: '/custom/:id',
     handler (params, { get, store }) {
       const ctx = { id: params.id }
@@ -254,10 +251,10 @@ describe('module.custom', () => {
     axios.mockImplementation(config => ({ data: customConfig.xhrCache.resources.find(resource => resource.name === config.url).content }))
     jest.spyOn(console, 'info').mockImplementation(() => {})
     jest.spyOn(console, 'error').mockImplementation(() => {})
-    /* eslint-disable */
+     
     console.info.mockClear()
     console.error.mockClear()
-    /* eslint-enable */
+     
 
     nuxt = (await setup(loadConfig(__dirname, 'basic', customConfig))).nuxt
   })
@@ -267,17 +264,17 @@ describe('module.custom', () => {
   })
 
   test('default resource with init should fetch resource at init', () => {
-    /* eslint-disable-next-line */
+     
     expect(console.info.mock.calls.findIndex(message => (message[0] === `${libPrefix} Fetch ${defaultResource.name} resource from ${defaultResource.request.url}`))).not.toBe(-1)
   })
 
   test('custom resource with init should fetch resource at init', () => {
-    /* eslint-disable-next-line */
+     
     expect(console.info.mock.calls.findIndex(message => (message[0] === `${libPrefix} Resource '${customResources[0].name}' with context ${JSON.stringify({ id: 'REF' })} got '${customResources[0].name}-REF' identifier`))).not.toBe(-1)
   })
 
   test('custom resource should expose custom middleware', async () => {
-    /* eslint-disable-next-line */
+     
     expect(console.info.mock.calls.findIndex(message => (message[0] === `${libPrefix} Serve custom '${customResources[0].name}' resource to ${url(`/xhr-cache${customResources[0].middleware.path}`)}`))).not.toBe(-1)
     await expect(get(`/xhr-cache${compile(customResources[0].middleware.path)({ id: 'REF' })}`, { json: true })).resolves.toMatchObject(customResources[0].content)
   })
