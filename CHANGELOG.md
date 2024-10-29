@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/gaetansenn/xhr-cache/compare/v3.3.0...v4.1.0) (2024-10-29)
+
+
+### Features
+
+* upgrade to node 20 ([c22cc39](https://github.com/gaetansenn/xhr-cache/commit/c22cc3934760799f45e21030464c5973e064d024))
+
 ## [3.3.0](https://github.com/gaetansenn/xhr-cache/compare/v3.2.6...v3.3.0) (2022-09-21)
 
 
