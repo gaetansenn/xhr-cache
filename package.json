@@ -38,11 +38,11 @@
     "access": "public"
   },
   "dependencies": {
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "mkdirp": "^1.0.4",
     "path": "^0.12.7",
     "path-to-regexp": "^6.1.0",
-    "rimraf": "^3.0.0",
+    "rimraf": "^5.0.0",
     "uuid-apikey": "^1.4.6"
   },
   "devDependencies": {
