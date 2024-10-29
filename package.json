@@ -68,6 +68,6 @@
     "standard-version": "latest"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.18.0"
   }
 }
