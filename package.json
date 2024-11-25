@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "mkdirp": "^1.0.4",
+    "mkdirp": "^3.0.1",
     "path": "^0.12.7",
     "path-to-regexp": "^6.1.0",
     "rimraf": "^5.0.0",
